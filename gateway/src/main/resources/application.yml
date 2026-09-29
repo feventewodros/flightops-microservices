@@ -1,0 +1,30 @@
+server:
+  port: ${GATEWAY_PORT:8080}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      default-filters:
+        - AddResponseHeader=X-Gateway, flightops-gateway
+      routes:
+        - id: flight-service
+          uri: ${FLIGHT_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/flights/**
+        - id: booking-service
+          uri: ${BOOKING_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/bookings/**
+        - id: notification-service
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/notifications/**
+
+# Actuator health for readiness checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,gateway
